@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 SCROB_USERNAME=
-vared -p "Enter your username: " SCROB_USERNAME
+vared -p "Enter your email: " SCROB_USERNAME
 echo "$SCROB_USERNAME" > ~/.scrob
 
 cd "$(dirname "$0")"

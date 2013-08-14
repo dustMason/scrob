@@ -61,7 +61,7 @@ send_scrobble(){
   local current_track_rating=`current_track_rating`
   local creds=`get_credentials`
   syslog -s -l info "Scrobbling for $creds"
-  curl -i -X POST --data 'username='"$creds"'&title='"$current_track_name"'&artist='"$current_artist_name"'&album='"$current_album_name"'&rating='"$current_track_rating"'' "http://dizouble.com/music"
+  curl -i -X POST --data 'user='"$creds"'&title='"$current_track_name"'&artist='"$current_artist_name"'&album='"$current_album_name"'&rating='"$current_track_rating"'' "http://dizouble.com/music"
 }
 
 check_itunes;

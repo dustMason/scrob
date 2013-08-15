@@ -1,0 +1,3 @@
+[submodule "itunes-library"]
+	path = itunes-library
+	url = https://github.com/scholnicks/itunes-library.git

@@ -3,36 +3,76 @@
 # using Bundler standalone
 require "./bundle/bundler/setup.rb"
 require "itunes/library"
+require 'json/pure'
+require 'net/http'
+require 'yaml'
 
-library = ITunes::Library.load File.join(ENV['HOME'],"/Music/iTunes/iTunes Music Library.xml")
-
-if library["Playlists"].nil?
-
-  puts "Couldn't find iTunes Music Library"
-  exit
-
-else
-
-  # grab all tracks that were listened to within the last week
-  last_week = DateTime.now - (7*24*60*60)
-  recents = library.music.tracks.select do |track|
-    track.last_played_at > last_week if track.last_played_at
-  end
-
-  # take those and sort by rating, give list of 30 top rated
-  recents.sort! do |x,y|
-    # if the song is rated above 3 stars, it wins against an unrated song
-    # otherwise, the play counts are used to compare
-    if (x["Rating"] || y["Rating"]) && (x["Rating"] > 75 || y["Rating"] > 75)
-      (x["Rating"] || 0) <=> (y["Rating"] || 0)
-    else
-      x.play_count <=> y.play_count
+# look! a monkey!
+module ITunes
+  class Track
+    def rating
+      self["Rating"] || 0
+    end
+    def number_of_weeks_ago_added
+      # date_added
+    end
+    def score
+      # rating - (number_of_weeks_ago_added * 10) + (play_count * 20)
     end
   end
-  top_songs = recents.first(30)
-  top_songs.each_with_index do |song, i|
-    puts "#{i+1}.  #{song.name}"
-  end
-
 end
+
+config = YAML.load_file(File.join(ENV['HOME'],".scrob"))
+
+itunes_xml_path = config["itunes_xml_path"] || File.join(ENV['HOME'],"/Music/iTunes/iTunes Music Library.xml")
+library = ITunes::Library.load itunes_xml_path
+
+errors = []
+errors << "Couldn't find iTunes Music Library" if library["Playlists"].nil?
+errors << "Your ~/.scrob file is missing your email" unless config["email"]
+
+unless errors.empty?
+  puts errors
+  exit
+end
+
+# grab all tracks that were listened to within the last week
+last_week = DateTime.now - (7*24*60*60)
+recents = library.music.tracks.select do |track|
+  track.last_played_at > last_week if track.last_played_at
+end
+
+# take those and sort by rating, give list of 30 top rated
+recents.sort! do |x,y|
+  # if the song is rated above 3 stars, it wins against an unrated song
+  # otherwise, the play counts are used to compare
+  if (x.rating > 75 || y.rating > 75)
+    y.rating <=> x.rating
+  else
+    y.play_count <=> x.play_count
+  end
+end
+
+top_songs = recents.first(30)
+
+# top_songs.each_with_index do |song, i|
+#   puts "#{i+1}.  #{song.name}"
+# end
+
+out = { "email" => config["email"], "songs" => [] }
+top_songs.each do |song|
+  out["songs"] << {
+    "title" => song.name,
+    "artist" => song.artist,
+    "album" => song.album,
+    "play_date" => song.last_played_at,
+    "rating" => song.rating,
+    "play_count" => song.play_count
+  }
+end
+
+uri = URI('http://httpbin.org/post')
+# uri = URI('http://dizouble.com/music')
+res = Net::HTTP.post_form(uri, 'data' => out.to_json)
+puts res.body
 

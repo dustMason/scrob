@@ -14,8 +14,6 @@ module ITunes
       self["Rating"] || 0
     end
     def number_of_weeks_ago_added
-      # time.now - date_added
-      # convert to weeks
       ((Time.now.to_i - date_added.to_time.to_i) / (7*24*60*60*1.0)).abs
     end
     def score
@@ -47,13 +45,6 @@ end
 
 # take those and sort by rating, give list of 30 top rated
 recents.sort! do |x,y|
-  # if the song is rated above 3 stars, it wins against an unrated song
-  # otherwise, the play counts are used to compare
-  # if (x.rating > 75 || y.rating > 75)
-  #   y.rating <=> x.rating
-  # else
-  #   y.play_count <=> x.play_count
-  # end
   y.score <=> x.score
 end
 

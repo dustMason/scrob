@@ -1,3 +1,6 @@
 [submodule "plist"]
 	path = plist
 	url = https://github.com/bleything/plist.git
+[submodule "itunesLibrary"]
+	path = itunes-library
+	url = https://github.com/josh/itunes-library.git

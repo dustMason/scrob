@@ -78,7 +78,7 @@ module Plist::Emit
         else
           inner_tags = []
 
-          element.keys.sort_by{|k| k.to_s }.each do |k|
+          element.keys.sort.each do |k|
             v = element[k]
             inner_tags << tag('key', CGI::escapeHTML(k.to_s))
             inner_tags << plist_node(v)
@@ -144,7 +144,7 @@ module Plist::Emit
     output = ''
 
     output << '<?xml version="1.0" encoding="UTF-8"?>' + "\n"
-    output << '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' + "\n"
+    output << '<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' + "\n"
     output << '<plist version="1.0">' + "\n"
 
     output << contents
@@ -210,6 +210,13 @@ module Plist::Emit
         @contents << "\n" unless val =~ /\n$/
       end
     end
+  end
+end
+
+# we need to add this so sorting hash keys works properly
+class Symbol #:nodoc:
+  def <=> (other)
+    self.to_s <=> other.to_s
   end
 end
 

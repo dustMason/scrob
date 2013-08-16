@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+# using Bundler standalone
+require "./bundle/bundler/setup.rb"
+require "itunes/library"
+
+library = ITunes::Library.load File.join(ENV['HOME'],"/Music/iTunes/iTunes Music Library.xml")
+
+# grab all tracks that were listened to within the last week
+last_week = DateTime.now - (7*24*60*60)
+recents = library.music.tracks.select do |track|
+  track.last_played_at > last_week if track.last_played_at
+end
+
+# take those and sort by rating, give list of 30 top rated
+recents.sort { |x,y| x["Rating"] <=> y["Rating"] }.first(30)
+puts recents
+

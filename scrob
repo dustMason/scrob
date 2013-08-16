@@ -20,7 +20,16 @@ else
   end
 
   # take those and sort by rating, give list of 30 top rated
-  top_songs = recents.sort { |x,y| (x["Rating"] || 0) <=> (y["Rating"] || 0) }.first(30)
+  recents.sort! do |x,y|
+    # if the song is rated above 3 stars, it wins against an unrated song
+    # otherwise, the play counts are used to compare
+    if (x["Rating"] || y["Rating"]) && (x["Rating"] > 75 || y["Rating"] > 75)
+      (x["Rating"] || 0) <=> (y["Rating"] || 0)
+    else
+      x.play_count <=> y.play_count
+    end
+  end
+  top_songs = recents.first(30)
   top_songs.each_with_index do |song, i|
     puts "#{i+1}.  #{song.name}"
   end

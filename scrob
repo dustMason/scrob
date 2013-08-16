@@ -14,10 +14,13 @@ module ITunes
       self["Rating"] || 0
     end
     def number_of_weeks_ago_added
-      # date_added
+      # time.now - date_added
+      # convert to weeks
+      ((Time.now.to_i - date_added.to_time.to_i) / (7*24*60*60*1.0)).abs
     end
     def score
-      # rating - (number_of_weeks_ago_added * 10) + (play_count * 20)
+      r = if rating == 0 then 50 else rating end
+      r + (number_of_weeks_ago_added * -2) + (play_count * 20)
     end
   end
 end
@@ -46,17 +49,18 @@ end
 recents.sort! do |x,y|
   # if the song is rated above 3 stars, it wins against an unrated song
   # otherwise, the play counts are used to compare
-  if (x.rating > 75 || y.rating > 75)
-    y.rating <=> x.rating
-  else
-    y.play_count <=> x.play_count
-  end
+  # if (x.rating > 75 || y.rating > 75)
+  #   y.rating <=> x.rating
+  # else
+  #   y.play_count <=> x.play_count
+  # end
+  y.score <=> x.score
 end
 
 top_songs = recents.first(30)
 
 top_songs.each_with_index do |song, i|
-  puts "#{i+1}.  #{song.name}"
+  puts "#{i+1}.  #{song.name} (#{song.score})"
 end
 
 out = { "email" => config["email"], "songs" => [] }
@@ -71,8 +75,8 @@ top_songs.each do |song|
   }
 end
 
-uri = URI('http://httpbin.org/post')
+# uri = URI('http://httpbin.org/post')
 # uri = URI('http://dizouble.com/music')
-res = Net::HTTP.post_form(uri, 'data' => out.to_json)
-puts res.body
+# res = Net::HTTP.post_form(uri, 'data' => out.to_json)
+# puts res.body
 

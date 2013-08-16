@@ -55,9 +55,9 @@ end
 
 top_songs = recents.first(30)
 
-# top_songs.each_with_index do |song, i|
-#   puts "#{i+1}.  #{song.name}"
-# end
+top_songs.each_with_index do |song, i|
+  puts "#{i+1}.  #{song.name}"
+end
 
 out = { "email" => config["email"], "songs" => [] }
 top_songs.each do |song|

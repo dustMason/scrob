@@ -7,6 +7,14 @@ require 'json/pure'
 require 'net/http'
 require 'yaml'
 
+# for 1.8.7
+class DateTime
+  def to_time
+    usec = (self.sec_fraction * 60 * 60 * 24 * (10**6)).to_i
+    Time.new(self.year, self.month, self.day, self.hour, self.min, self.sec, usec)
+  end
+end
+
 # look! a monkey!
 module ITunes
   class Track
@@ -44,14 +52,11 @@ recents = library.music.tracks.select do |track|
 end
 
 # take those and sort by rating, give list of 30 top rated
-recents.sort! do |x,y|
-  y.score <=> x.score
-end
-
+recents.sort! { |x,y| y.score <=> x.score }
 top_songs = recents.first(30)
 
 top_songs.each_with_index do |song, i|
-  puts "#{i+1}.  #{song.name} (#{song.score})"
+  puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.score})"
 end
 
 out = { "email" => config["email"], "songs" => [] }

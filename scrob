@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 # using Bundler standalone
-require "./bundle/bundler/setup.rb"
-require "itunes/library"
+require './bundle/bundler/setup.rb'
+require 'itunes/library'
 require 'json/pure'
 require 'net/http'
 require 'yaml'

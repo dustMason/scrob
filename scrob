@@ -18,11 +18,15 @@ end
 # look! a monkey!
 module ITunes
   class Track
+    def last_played_at_timestamp
+      self["Play Date"]
+    end
     def rating
       self["Rating"] || 0
     end
     def number_of_weeks_ago_added
-      ((Time.now.to_i - date_added.to_time.to_i) / (7*24*60*60*1.0)).abs
+      added = date_added.to_time
+      ((Time.now.to_i - added.to_i) / (7*24*60*60*1.0)).abs
     end
     def score
       r = if rating == 0 then 50 else rating end
@@ -37,7 +41,7 @@ itunes_xml_path = config["itunes_xml_path"] || File.join(ENV['HOME'],"/Music/iTu
 library = ITunes::Library.load itunes_xml_path
 
 errors = []
-errors << "Couldn't find iTunes Music Library" if library["Playlists"].nil?
+errors << "Couldn't find iTunes Music Library at #{itunes_xml_path}" if library["Playlists"].nil?
 errors << "Your ~/.scrob file is missing your email" unless config["email"]
 
 unless errors.empty?
@@ -46,18 +50,20 @@ unless errors.empty?
 end
 
 # grab all tracks that were listened to within the last week
-last_week = DateTime.now - (7*24*60*60)
+
+# iTunes uses Jan 1, 1904 as epoch for timestamps
+last_week_timestamp = (Time.gm(1904, 1, 1, 0) - (7*24*60*60)).to_i
 recents = library.music.tracks.select do |track|
-  track.last_played_at > last_week if track.last_played_at
+  track.last_played_at_timestamp && track.last_played_at_timestamp > last_week_timestamp
 end
 
 # take those and sort by rating, give list of 30 top rated
 recents.sort! { |x,y| y.score <=> x.score }
 top_songs = recents.first(30)
 
-top_songs.each_with_index do |song, i|
-  puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.score})"
-end
+# top_songs.each_with_index do |song, i|
+#   puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.score})"
+# end
 
 out = { "email" => config["email"], "songs" => [] }
 top_songs.each do |song|

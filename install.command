@@ -13,23 +13,27 @@ success () {
 # get sudo access upfront
 sudo -v
 
-# check to see if there is an existing ~/.scrob file
-overwrite=false
-user "~/.scrob already exists, what do you want to do? [s]kip, [o]verwrite?"
-read -n 1 action
-case "$action" in
-  o )
-    overwrite=true;;
-  s )
-    overwrite=false;;
-  * )
-    ;;
-esac
+overwrite=true
 
-# if so, prompt to overwrite with given username
+# check to see if there is an existing ~/.scrob file
+if [ -f "$HOME/.scrob" ]
+then
+  # if so, prompt to overwrite with given username
+  user "~/.scrob already exists, what do you want to do? [s]kip, [o]verwrite?"
+  read -n 1 action
+  case "$action" in
+    o )
+      overwrite=true;;
+    s )
+      overwrite=false;;
+    * )
+      ;;
+  esac
+fi
+
 if [ "$overwrite" == "true" ] 
 then
-  rm ~/.scrob
+  rm -f ~/.scrob
   echo "---" > ~/.scrob
   user " - Enter your email:"
   read -e SCROB_USERNAME
@@ -37,7 +41,7 @@ then
 fi
 
 
-# then download zip from github into /Applications
+# download zip from github into /Applications
 # deflate it
 # copy the LaunchAgent into place
 # load up the LaunchAgent

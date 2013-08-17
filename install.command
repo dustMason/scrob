@@ -1,7 +1,7 @@
 #!/bin/bash
 
 info () {
-  printf "  [ \033[00;34m..\033[0m ] $1"
+  printf "\n  [ \033[00;34m..\033[0m ] $1"
 }
 user () {
   printf "\r  [ \033[0;33m?\033[0m ] $1 "
@@ -41,16 +41,23 @@ then
 fi
 
 
+info "Downloading scrob"
 # download zip from github into /Applications
 # deflate it
+# make scrob executable chmod +x
+
+info "Installing LaunchAgent"
 # copy the LaunchAgent into place
+# sudo cp -f ./com.jordansitkin.scrob.plist /Library/LaunchAgents;
 # load up the LaunchAgent
+# sudo launchctl load /Library/LaunchAgents/com.jordansitkin.scrob.plist;
+
+info "Cleaning up"
 # remove the zip file
 
+success "Done!"
 
 # cd "$(dirname "$0")"
-# sudo cp -f ./com.jordansitkin.scrob.plist /Library/LaunchAgents;
 # sudo cp -rf ./ /Applications/scrob;
-# sudo launchctl load /Library/LaunchAgents/com.jordansitkin.scrob.plist;
 
 exit;

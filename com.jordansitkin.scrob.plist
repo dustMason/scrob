@@ -6,11 +6,16 @@
     <string>com.jordansitkin.scrob</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Applications/scrob/itunes.sh</string>
+        <string>/Applications/scrob/scrob</string>
     </array>
     <key>RunAtLoad</key>
     <false/>
-    <key>StartInterval</key>
-    <integer>20</integer>
+    <key>StartCalendarInterval</key>
+    <dict>
+      <key>Hour</key>
+      <integer>12</integer>
+    </dict>
+    <key>LowPriorityIO</key>
+    <true/>
 </dict>
 </plist>

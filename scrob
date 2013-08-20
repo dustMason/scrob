@@ -86,6 +86,6 @@ end
 # res = Net::HTTP.post_form(uri, 'data' => out.to_json)
 # puts res.body
 
-message = "#{top_songs.size} stats uploaded for #{config['email']}" 
+message = "#{top_songs.size} songs uploaded for #{config['email']}" 
 
-`#{h}/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier -message "#{message}" -title "scrob"`
+`#{h}/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier -message "#{message}" -title "scrob" &> /dev/null`

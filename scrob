@@ -69,9 +69,9 @@ top_songs = recents.first(30)
 #   puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
 # end
 
-out = { "email" => config["email"], "songs" => [] }
-top_songs.each do |song|
-  out["songs"] << {
+out = { "email" => config["email"] }
+out["songs"] = top_songs.map do |song|
+  {
     "title" => song.name,
     "artist" => song.artist,
     "album" => song.album,
@@ -82,10 +82,12 @@ top_songs.each do |song|
 end
 
 # uri = URI('http://httpbin.org/post')
-# uri = URI('http://dizouble.com/music')
-# res = Net::HTTP.post_form(uri, 'data' => out.to_json)
+uri = URI('http://dizouble.com/music')
+res = Net::HTTP.post_form(uri, 'data' => out.to_json)
 # puts res.body
 
-message = "#{top_songs.size} songs uploaded for #{config['email']}" 
-
+message = if res.body == "1"
+  then "#{top_songs.size} songs uploaded for #{config['email']}" 
+  else "There was an error uploading your listening stats to the server."
+end
 `#{h}/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier -message "#{message}" -title "scrob" &> /dev/null`

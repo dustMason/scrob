@@ -3,11 +3,10 @@ scrob
 
 > Sends info about music you play in iTunes on your mac to our top secret collection facility.
 
-To install, clone this repo to your mac:
+To install, open up a terminal window and paste in this line:
 
-    git clone https://github.com/dustMason/scrob.git
+    bash <(curl -s https://raw.github.com/dustMason/scrob/master/install.command)
 
-Then double click the `install.command` file in the directory you just grabbed. You will be asked for a username - this will identify you on the website. You'll then be prompted for your Mac OS X user password so that the script can set up a background process which monitors iTunes.
+You'll then be prompted for your Mac OS X user password so that the script can set up a background process which monitors iTunes. You will be asked for a username - this will identify you on the website.
 
-Running `uninstall.command` reverses these changes and kills the background process.
-
+A 'scrob' folder will be created in `/Applications`. Running the `uninstall.command` in there reverses these changes and kills the background process.

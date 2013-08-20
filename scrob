@@ -55,7 +55,6 @@ unless errors.empty?
 end
 
 # grab all tracks that were listened to within the last week
-
 last_week = DateTime.now - 7
 recents = library.music.tracks.select do |track|
   track.last_played_at_timestamp && track.last_played_at > last_week

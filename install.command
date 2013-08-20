@@ -1,13 +1,16 @@
 #!/bin/bash
 
 info () {
-  printf "\n  [ \033[00;34m..\033[0m ] $1"
+  echo ""
+  printf "  [ \033[00;34m..\033[0m ] $1 "
 }
 user () {
-  printf "\n\r  [ \033[0;33m?\033[0m ] $1 "
+  echo ""
+  printf "  [ \033[0;33m?\033[0m ] $1 "
 }
 success () {
-  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
+  echo ""
+  printf "\033[2K  [ \033[00;32mOK\033[0m ] $1 "
 }
 
 # get sudo access upfront
@@ -42,22 +45,24 @@ fi
 
 
 info "Downloading scrob"
-# download zip from github into /Applications
-# deflate it
-# make scrob executable chmod +x
+echo ""
+cd "/Applications"
+rm -rf scrob
+curl -o scrob.tar.gz -L -# https://github.com/dustMason/scrob/archive/master.tar.gz
+tar xpf scrob.tar.gz
+mv ./scrob-master ./scrob
+chmod +x ./scrob/scrob
 
 info "Installing LaunchAgent"
 # copy the LaunchAgent into place
-# sudo cp -f ./com.jordansitkin.scrob.plist /Library/LaunchAgents;
+sudo cp -f ./scrob/com.jordansitkin.scrob.plist /Library/LaunchAgents
 # load up the LaunchAgent
-# sudo launchctl load /Library/LaunchAgents/com.jordansitkin.scrob.plist;
+sudo launchctl load /Library/LaunchAgents/com.jordansitkin.scrob.plist
 
 info "Cleaning up"
-# remove the zip file
+rm -rf scrob.tar.gz
 
 success "Done!"
 
-# cd "$(dirname "$0")"
-# sudo cp -rf ./ /Applications/scrob;
 
 exit;

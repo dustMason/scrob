@@ -13,9 +13,6 @@ success () {
   printf "\033[2K  [ \033[00;32mOK\033[0m ] $1 "
 }
 
-# get sudo access upfront
-sudo -v
-
 overwrite=true
 
 # check to see if there is an existing ~/.scrob file
@@ -55,9 +52,9 @@ chmod +x ./scrob/scrob
 
 info "Installing LaunchAgent"
 # copy the LaunchAgent into place
-sudo cp -f ./scrob/com.jordansitkin.scrob.plist /Library/LaunchAgents
+cp -f ./scrob/com.jordansitkin.scrob.plist "$HOME/Library/LaunchAgents"
 # load up the LaunchAgent
-sudo launchctl load /Library/LaunchAgents/com.jordansitkin.scrob.plist
+launchctl load "$HOME/Library/LaunchAgents/com.jordansitkin.scrob.plist"
 
 info "Cleaning up"
 rm -rf scrob.tar.gz

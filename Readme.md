@@ -7,6 +7,6 @@ To install, open up a terminal window and paste in this line:
 
     bash <(curl -s https://raw.github.com/dustMason/scrob/master/install.command)
 
-You'll then be prompted for your Mac OS X user password so that the script can set up a background process which monitors iTunes. You will be asked for a username - this will identify you on the website.
+You will be asked for your email - this will identify you on the website.
 
-A 'scrob' folder will be created in `/Applications`. Running the `uninstall.command` found in that folder removes all installed files and kills the background process.
+A 'scrob' folder will be created in `/Applications`, and a LaunchAgent plist file will be added to ~/Library/LaunchAgents. The script is scheduled to run every 12 hours. Running the `uninstall.command` found in that folder removes all installed files and kills the background process.

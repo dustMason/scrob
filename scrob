@@ -1,11 +1,16 @@
 #!/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
 
+# set the running script to a low priority to avoid interrupting other stuff
+Process.setpriority(Process::PRIO_PROCESS, 0, 20)
+
+h = File.dirname($0)
+
 # using Bundler standalone
-require './bundle/bundler/setup.rb'
-require 'itunes/library'
-require 'json/pure'
-require 'net/http'
-require 'yaml'
+require "#{h}/bundle/bundler/setup"
+require "itunes/library"
+require "json/pure"
+require "net/http"
+require "yaml"
 
 # for 1.8.7
 class DateTime
@@ -60,9 +65,9 @@ end
 recents.sort! { |x,y| y.score <=> x.score }
 top_songs = recents.first(30)
 
-top_songs.each_with_index do |song, i|
-  puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
-end
+# top_songs.each_with_index do |song, i|
+#   puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
+# end
 
 out = { "email" => config["email"], "songs" => [] }
 top_songs.each do |song|
@@ -81,3 +86,6 @@ end
 # res = Net::HTTP.post_form(uri, 'data' => out.to_json)
 # puts res.body
 
+message = "#{top_songs.size} stats uploaded for #{config['email']}" 
+
+`#{h}/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier -message "#{message}" -title "scrob"`

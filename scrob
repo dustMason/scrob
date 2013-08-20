@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
 
 # using Bundler standalone
 require './bundle/bundler/setup.rb'
@@ -60,9 +60,9 @@ end
 recents.sort! { |x,y| y.score <=> x.score }
 top_songs = recents.first(30)
 
-# top_songs.each_with_index do |song, i|
-#   puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
-# end
+top_songs.each_with_index do |song, i|
+  puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
+end
 
 out = { "email" => config["email"], "songs" => [] }
 top_songs.each do |song|

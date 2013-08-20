@@ -1,22 +1,21 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = "json_pure"
+  s.name = %q{json_pure}
   s.version = "1.8.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Florian Frank"]
-  s.date = "2013-05-13"
-  s.description = "This is a JSON implementation in pure Ruby."
-  s.email = "flori@ping.de"
-  s.extra_rdoc_files = ["README.rdoc"]
-  s.files = ["README.rdoc"]
-  s.homepage = "http://flori.github.com/json"
+  s.date = %q{2013-05-13}
+  s.description = %q{This is a JSON implementation in pure Ruby.}
+  s.email = %q{flori@ping.de}
+  s.files = ["./tests/test_json.rb", "./tests/test_json_addition.rb", "./tests/test_json_encoding.rb", "./tests/test_json_fixtures.rb", "./tests/test_json_generate.rb", "./tests/test_json_generic_object.rb", "./tests/test_json_string_matching.rb", "./tests/test_json_unicode.rb"]
+  s.homepage = %q{http://flori.github.com/json}
   s.licenses = ["Ruby"]
-  s.rdoc_options = ["--title", "JSON implemention for ruby", "--main", "README.rdoc"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "2.0.5"
-  s.summary = "JSON Implementation for Ruby"
+  s.rubygems_version = %q{1.6.2}
+  s.summary = %q{JSON Implementation for Ruby}
+  s.test_files = ["./tests/test_json.rb", "./tests/test_json_addition.rb", "./tests/test_json_encoding.rb", "./tests/test_json_fixtures.rb", "./tests/test_json_generate.rb", "./tests/test_json_generic_object.rb", "./tests/test_json_string_matching.rb", "./tests/test_json_unicode.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 4

@@ -53,6 +53,7 @@ chmod +x ./scrob/scrob
 info "Installing LaunchAgent"
 # copy the LaunchAgent into place
 cp -f ./scrob/com.jordansitkin.scrob.plist "$HOME/Library/LaunchAgents"
+chmod 644 "$HOME/Library/LaunchAgents/com.jordansitkin.scrob.plist"
 # load up the LaunchAgent
 launchctl load "$HOME/Library/LaunchAgents/com.jordansitkin.scrob.plist"
 

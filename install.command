@@ -60,7 +60,9 @@ launchctl load "$HOME/Library/LaunchAgents/com.jordansitkin.scrob.plist"
 info "Cleaning up"
 rm -rf scrob.tar.gz
 
-success "Done!"
+info "Running for the first time"
+/Applications/scrob/scrob
 
+success "Done!"
 
 exit;

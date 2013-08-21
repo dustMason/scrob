@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo launchctl unload ~/Library/LaunchAgents/com.jordansitkin.scrob.plist;
+launchctl unload ~/Library/LaunchAgents/com.jordansitkin.scrob.plist;
 rm -f ~/Library/LaunchAgents/com.jordansitkin.scrob.plist;
 rm -f ~/.scrob;
 

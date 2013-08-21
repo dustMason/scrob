@@ -10,11 +10,8 @@
     </array>
     <key>RunAtLoad</key>
     <false/>
-    <key>StartCalendarInterval</key>
-    <dict>
-      <key>Hour</key>
-      <integer>12</integer>
-    </dict>
+    <key>StartInterval</key>
+    <integer>43200</integer>
     <key>LowPriorityIO</key>
     <true/>
 </dict>

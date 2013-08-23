@@ -84,9 +84,3 @@ end
 uri = URI('http://dizouble.com/music')
 res = Net::HTTP.post_form(uri, 'data' => out.to_json)
 # puts res.body
-
-message = if res.body == "1"
-  then "#{top_songs.size} songs uploaded for #{config['email']}" 
-  else "There was an error uploading your listening stats to the server."
-end
-`#{h}/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier -message "#{message}" -title "scrob" &> /dev/null`

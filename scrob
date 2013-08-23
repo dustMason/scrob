@@ -68,8 +68,13 @@ top_songs = recents.first(30)
 #   puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
 # end
 
-out = { "email" => config["email"] }
+out = {
+  "email" => config["email"],
+  "total_song_count" => recents.size,
+  "total_play_count" => 0
+}
 out["songs"] = top_songs.map do |song|
+  out["total_play_count"] += song.play_count
   {
     "title" => song.name,
     "artist" => song.artist,

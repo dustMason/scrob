@@ -33,8 +33,9 @@ fi
 
 if [ "$overwrite" == "true" ] 
 then
-  rm -f ~/.scrob
+  rm -rf ~/.scrob
   mkdir -p ~/.scrob
+  mkdir -p ~/.scrob/cached
   echo "---" > ~/.scrob/config.yml
   user " - Enter your email:"
   read -e SCROB_USERNAME
@@ -53,6 +54,8 @@ chmod +x ./scrob/scrob
 
 info "Installing LaunchAgent"
 # copy the LaunchAgent into place
+launchctl unload ~/Library/LaunchAgents/com.jordansitkin.scrob.plist
+rm -f ~/Library/LaunchAgents/com.jordansitkin.scrob.plist
 cp -f ./scrob/com.jordansitkin.scrob.plist "$HOME/Library/LaunchAgents"
 chmod 644 "$HOME/Library/LaunchAgents/com.jordansitkin.scrob.plist"
 # load up the LaunchAgent

@@ -80,25 +80,28 @@ out["songs"] = recents.map do |song|
   }
 end
 
-# save out into ~/.scrob/cached/date.json
+# pp out
+
 stamp = Time.now.strftime "%Y-%m-%d"
 File.open(File.join(ENV["HOME"],".scrob/cached/#{stamp}.json"),"w") do |f|
   f.write(out.to_json)
 end
 
-# pp out
-
 # uri = URI('http://httpbin.org/post')
-# uri = URI('http://dizouble.com/music')
-# res = Net::HTTP.post_form(uri, 'data' => out.to_json)
-# puts res.body
-
-# TODO
-# look in ~/.scrob/cached
-# any files in there will contain strings of json ready to post, so post each one, deleting as they are done
-# while making a post with net http
-
+uri = URI('http://dizouble.com/music')
 Dir.glob(File.join(ENV["HOME"],".scrob/cached/*.json")) do |json_file|
-  pp json_file.read
+  File.open(json_file, "r") do |f|
+    begin
+      res = Net::HTTP.post_form(uri, 'data' => f.read)
+      if res.kind_of? Net::HTTPSuccess
+        File.delete json_file
+      else
+        puts "POST for #{json_file} failed, will try it again next time. Response below:"
+        puts res
+      end
+    rescue SocketError => e
+      puts "Couldn't reach #{uri}, will try it again next time"
+    end
+  end
 end
 

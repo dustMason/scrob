@@ -11,6 +11,7 @@ require "itunes/library"
 require "json/pure"
 require "net/http"
 require "yaml"
+require "pp"
 
 # for 1.8.7
 class DateTime
@@ -68,10 +69,17 @@ top_songs = recents.first(30)
 #   puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
 # end
 
+artists = {}
+recents.each do |s|
+  artists[s.artist] ||= 0
+  artists[s.artist] += s.score
+end
+
 out = {
   "email" => config["email"],
   "total_song_count" => recents.size,
-  "total_play_count" => 0
+  "total_play_count" => 0,
+  "artists" => artists
 }
 out["songs"] = top_songs.map do |song|
   out["total_play_count"] += song.play_count
@@ -85,7 +93,10 @@ out["songs"] = top_songs.map do |song|
   }
 end
 
+# pp out
+
 # uri = URI('http://httpbin.org/post')
 uri = URI('http://dizouble.com/music')
 res = Net::HTTP.post_form(uri, 'data' => out.to_json)
 # puts res.body
+

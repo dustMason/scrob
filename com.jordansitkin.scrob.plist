@@ -11,7 +11,7 @@
     <key>RunAtLoad</key>
     <false/>
     <key>StartInterval</key>
-    <integer>43200</integer>
+    <integer>86400</integer>
     <key>LowPriorityIO</key>
     <true/>
 </dict>

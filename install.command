@@ -16,7 +16,7 @@ success () {
 overwrite=true
 
 # check to see if there is an existing ~/.scrob file
-if [ -f "$HOME/.scrob" ]
+if [ -e "$HOME/.scrob" ]
 then
   # if so, prompt to overwrite with given username
   user "~/.scrob already exists, what do you want to do? [s]kip, [o]verwrite?"
@@ -34,10 +34,11 @@ fi
 if [ "$overwrite" == "true" ] 
 then
   rm -f ~/.scrob
-  echo "---" > ~/.scrob
+  mkdir -p ~/.scrob
+  echo "---" > ~/.scrob/config.yml
   user " - Enter your email:"
   read -e SCROB_USERNAME
-  echo "email: $SCROB_USERNAME" >> ~/.scrob
+  echo "email: $SCROB_USERNAME" >> ~/.scrob/config.yml
 fi
 
 

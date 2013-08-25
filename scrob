@@ -43,14 +43,14 @@ module ITunes
   end
 end
 
-config = YAML.load_file(File.join(ENV['HOME'],".scrob"))
+config = YAML.load_file(File.join(ENV['HOME'],".scrob/config.yml"))
 
 itunes_xml_path = config["itunes_xml_path"] || File.join(ENV['HOME'],"/Music/iTunes/iTunes Music Library.xml")
 library = ITunes::Library.load itunes_xml_path
 
 errors = []
 errors << "Couldn't find iTunes Music Library at #{itunes_xml_path}" if library["Playlists"].nil?
-errors << "Your ~/.scrob file is missing your email" unless config["email"]
+errors << "Your ~/.scrob/config.yml file is missing your email" unless config["email"]
 
 unless errors.empty?
   puts errors
@@ -58,33 +58,16 @@ unless errors.empty?
 end
 
 # grab all tracks that were listened to within the last week
-last_week = DateTime.now - 7
+yesterday = DateTime.now - 1
 recents = library.music.tracks.select do |track|
-  track.last_played_at_timestamp && track.last_played_at > last_week
-end
-
-# take those and sort by rating, give list of 30 top rated
-recents.sort! { |x,y| y.score <=> x.score }
-top_songs = recents.first(30)
-
-# top_songs.each_with_index do |song, i|
-#   puts "#{i+1}.  #{song.artist} - #{song.name} (#{song.play_count} plays, #{song.score} score)"
-# end
-
-artists = {}
-recents.each do |s|
-  artists[s.artist] ||= 0
-  artists[s.artist] += s.score
+  track.last_played_at_timestamp && track.last_played_at > yesterday
 end
 
 out = {
   "email" => config["email"],
-  "total_song_count" => recents.size,
-  "total_play_count" => 0,
-  "artists" => artists
+  "time" => Time.now
 }
-out["songs"] = top_songs.map do |song|
-  out["total_play_count"] += song.play_count
+out["songs"] = recents.map do |song|
   {
     "title" => song.name,
     "artist" => song.artist,
@@ -92,14 +75,30 @@ out["songs"] = top_songs.map do |song|
     "play_date" => song.last_played_at,
     "rating" => song.rating,
     "play_count" => song.play_count,
-    "score" => song.score
+    "date_added" => song.date_added
+    # "score" => song.score
   }
 end
 
-pp out
+# save out into ~/.scrob/cached/date.json
+stamp = Time.now.strftime "%Y-%m-%d"
+File.open(File.join(ENV["HOME"],".scrob/cached/#{stamp}.json"),"w") do |f|
+  f.write(out.to_json)
+end
+
+# pp out
 
 # uri = URI('http://httpbin.org/post')
-uri = URI('http://dizouble.com/music')
-res = Net::HTTP.post_form(uri, 'data' => out.to_json)
+# uri = URI('http://dizouble.com/music')
+# res = Net::HTTP.post_form(uri, 'data' => out.to_json)
 # puts res.body
+
+# TODO
+# look in ~/.scrob/cached
+# any files in there will contain strings of json ready to post, so post each one, deleting as they are done
+# while making a post with net http
+
+Dir.glob(File.join(ENV["HOME"],".scrob/cached/*.json")) do |json_file|
+  pp json_file.read
+end
 

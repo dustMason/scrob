@@ -66,16 +66,18 @@ File.open(File.join(ENV["HOME"],".scrob/cached/#{stamp}.json"),"w") do |f|
 end
 
 # uri = URI('http://httpbin.org/post')
-uri = URI('http://dizouble.com/music')
+# uri = URI('http://dizouble.com/music')
+# uri = URI('http://localhost:4567/songs')
+uri = URI('http://whaleteeth.herokuapp.com/songs')
 Dir.glob(File.join(ENV["HOME"],".scrob/cached/*.json")) do |json_file|
   File.open(json_file, "r") do |f|
     begin
       res = Net::HTTP.post_form(uri, 'data' => f.read)
-      if res.kind_of? Net::HTTPSuccess
+      if res.kind_of?(Net::HTTPSuccess) || res.kind_of?(Net::HTTPSeeOther)
         File.delete json_file
       else
         puts "POST for #{json_file} failed, will try it again next time. Response below:"
-        puts res
+        puts res.body
       end
     rescue SocketError => e
       puts "Couldn't reach #{uri}, will try it again next time"

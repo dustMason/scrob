@@ -1,87 +1,76 @@
-#!/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
+#!/usr/bin/env python
 
-# set the running script to a low priority to avoid interrupting other stuff
-Process.setpriority(Process::PRIO_PROCESS, 0, 20)
+import datetime
+import json
+import os
+import glob
+import httplib, urllib
+from plist_parser import XmlPropertyListParser, PropertyListParseError
 
-h = File.dirname($0)
+HOME = os.environ['HOME']
 
-# using Bundler standalone
-require "#{h}/bundle/bundler/setup"
-require "itunes/library"
-require "json/pure"
-require "net/http"
-require "yaml"
-require "pp"
+EPOCH = datetime.datetime(1904, 1, 1, 0, 0)
+def to_timestamp(utc_datetime):
+    delta = utc_datetime - EPOCH
+    return delta.total_seconds()
 
-# look! a monkey!
-module ITunes
-  class Track
-    def rating
-      self["Rating"] || 0
-    end
-  end
-end
+config_file = open(os.path.join(HOME, '.scrob', 'config.json'))
+CONFIG = json.load(config_file)
+config_file.close()
 
-config = YAML.load_file(File.join(ENV['HOME'],".scrob/config.yml"))
+if 'itunes_xml_path' in CONFIG:
+    ITUNES_XML_PATH = CONFIG['itunes_xml_path']
+else:
+    ITUNES_XML_PATH = os.path.join(HOME, 'Music', 'iTunes', 'iTunes Music Library.xml')
 
-itunes_xml_path = config["itunes_xml_path"] || File.join(ENV['HOME'],"/Music/iTunes/iTunes Music Library.xml")
-library = ITunes::Library.load itunes_xml_path
+def get_recently_played_tracks(stream):
+    since = to_timestamp(datetime.datetime.utcnow() - datetime.timedelta(days=3))
+    parser = XmlPropertyListParser()
+    tracks = []
+    try:
+        plist = parser.parse(stream)
+        for trackid in plist['Tracks']:
+            if 'Play Date' in plist['Tracks'][trackid]:
+                stamp = plist['Tracks'][trackid]['Play Date']
+                if stamp > since:
+                    track_data = plist['Tracks'][trackid]
+                    track = {
+                        "title": track_data['Name'],
+                        "artist": track_data['Artist'],
+                        "album": track_data['Album'],
+                        "play_date": track_data['Play Date UTC'],
+                        "date_added": track_data['Date Added'],
+                        "play_count": track_data['Play Count']
+                    }
+                    if 'Rating' in track_data:
+                        track['rating'] = track_data['Rating']
+                    else:
+                        track['rating'] = 0
+                    tracks.append(track)
+    finally:
+        stream.close()
+        return tracks
 
-errors = []
-errors << "Couldn't find iTunes Music Library at #{itunes_xml_path}" if library["Playlists"].nil?
-errors << "Your ~/.scrob/config.yml file is missing your email" unless config["email"]
-
-unless errors.empty?
-  puts errors
-  exit
-end
-
-# grab all tracks that were listened to within the last week
-yesterday = DateTime.now - 1
-recents = library.music.tracks.select do |track|
-  track.last_played_at && track.last_played_at > yesterday
-end
-
+stream = open(ITUNES_XML_PATH)
 out = {
-  "email" => config["email"],
-  "time" => Time.now
+    "email": CONFIG['email'],
+    "time": datetime.datetime.utcnow(),
+    "songs": get_recently_played_tracks(stream)
 }
-out["songs"] = recents.map do |song|
-  {
-    "title" => song.name,
-    "artist" => song.artist,
-    "album" => song.album,
-    "play_date" => song.last_played_at,
-    "rating" => song.rating,
-    "play_count" => song.play_count,
-    "date_added" => song.date_added
-  }
-end
 
-# pp out
+stamp = datetime.datetime.now().strftime("%Y-%m-%d")
+cached_file = open(os.path.join(HOME, '.scrob', 'cached', stamp+'.json'), 'w')
+dthandler = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else None
+cached_file.write(json.dumps(out, default=dthandler))
+cached_file.close()
 
-stamp = Time.now.strftime "%Y-%m-%d"
-File.open(File.join(ENV["HOME"],".scrob/cached/#{stamp}.json"),"w") do |f|
-  f.write(out.to_json)
-end
-
-# uri = URI('http://httpbin.org/post')
-# uri = URI('http://dizouble.com/music')
-# uri = URI('http://localhost:4567/songs')
-uri = URI('http://whaleteeth.herokuapp.com/songs')
-Dir.glob(File.join(ENV["HOME"],".scrob/cached/*.json")) do |json_file|
-  File.open(json_file, "r") do |f|
-    begin
-      res = Net::HTTP.post_form(uri, 'data' => f.read)
-      if res.kind_of?(Net::HTTPSuccess) || res.kind_of?(Net::HTTPSeeOther)
-        File.delete json_file
-      else
-        puts "POST for #{json_file} failed, will try it again next time. Response below:"
-        puts res.body
-      end
-    rescue SocketError => e
-      puts "Couldn't reach #{uri}, will try it again next time"
-    end
-  end
-end
+for filename in glob.glob(os.path.join(HOME, '.scrob', 'cached', '*.json')):
+    with open(filename, "r") as cached:
+        params = urllib.urlencode({ 'data': cached.read() })
+        conn = httplib.HTTPConnection("localhost:4567")
+        conn.request("POST", "/songs", params)
+        response = conn.getresponse()
+        if response.status == 303 or response.status == 200:
+            os.remove(filename)
+        conn.close() 
 

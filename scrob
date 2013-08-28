@@ -23,6 +23,11 @@ if 'itunes_xml_path' in CONFIG:
 else:
     ITUNES_XML_PATH = os.path.join(HOME, 'Music', 'iTunes', 'iTunes Music Library.xml')
 
+if 'api' in CONFIG:
+    API_ENDPOINT = CONFIG['api']
+else:
+    API_ENDPOINT = "whaleteeth.herokuapp.com"
+
 def get_recently_played_tracks(stream):
     since = to_timestamp(datetime.datetime.utcnow() - datetime.timedelta(days=3))
     parser = XmlPropertyListParser()
@@ -67,7 +72,7 @@ cached_file.close()
 for filename in glob.glob(os.path.join(HOME, '.scrob', 'cached', '*.json')):
     with open(filename, "r") as cached:
         params = urllib.urlencode({ 'data': cached.read() })
-        conn = httplib.HTTPConnection("localhost:4567")
+        conn = httplib.HTTPConnection(API_ENDPOINT)
         conn.request("POST", "/songs", params)
         response = conn.getresponse()
         if response.status == 303 or response.status == 200:

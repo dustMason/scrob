@@ -36,10 +36,11 @@ then
   rm -rf ~/.scrob
   mkdir -p ~/.scrob
   mkdir -p ~/.scrob/cached
-  echo "---" > ~/.scrob/config.yml
+  echo "{" > ~/.scrob/config.json
   user " - Enter your email:"
   read -e SCROB_USERNAME
-  echo "email: $SCROB_USERNAME" >> ~/.scrob/config.yml
+  echo "'email': '$SCROB_USERNAME'" >> ~/.scrob/config.json
+  echo "}" >> ~/.scrob/config.json
 fi
 
 

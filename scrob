@@ -49,8 +49,6 @@ def get_recently_played_tracks(stream):
                     }
                     if 'Rating' in track_data:
                         track['rating'] = track_data['Rating']
-                    else:
-                        track['rating'] = 0
                     tracks.append(track)
     finally:
         stream.close()

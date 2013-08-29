@@ -7,26 +7,19 @@ import glob
 import httplib, urllib
 from plist_parser import XmlPropertyListParser, PropertyListParseError
 
-HOME = os.environ['HOME']
-
 EPOCH = datetime.datetime(1904, 1, 1, 0, 0)
 def to_timestamp(utc_datetime):
     delta = utc_datetime - EPOCH
     return delta.total_seconds()
 
-config_file = open(os.path.join(HOME, '.scrob', 'config.json'))
-CONFIG = json.load(config_file)
-config_file.close()
+HOME = os.environ['HOME']
+defaults = {
+    'itunes_xml_path': os.path.join(HOME, 'Music', 'iTunes', 'iTunes Music Library.xml'),
+    'api': 'whaleteeth.herokuapp.com'
+}
 
-if 'itunes_xml_path' in CONFIG:
-    ITUNES_XML_PATH = CONFIG['itunes_xml_path']
-else:
-    ITUNES_XML_PATH = os.path.join(HOME, 'Music', 'iTunes', 'iTunes Music Library.xml')
-
-if 'api' in CONFIG:
-    API_ENDPOINT = CONFIG['api']
-else:
-    API_ENDPOINT = "whaleteeth.herokuapp.com"
+with open(os.path.join(HOME, '.scrob', 'config.json')) as config_file:
+    CONFIG = dict(defaults.items() + json.load(config_file).items())
 
 def get_recently_played_tracks(stream):
     since = to_timestamp(datetime.datetime.utcnow() - datetime.timedelta(days=3))
@@ -54,7 +47,7 @@ def get_recently_played_tracks(stream):
         stream.close()
         return tracks
 
-stream = open(ITUNES_XML_PATH)
+stream = open(CONFIG['itunes_xml_path'])
 out = {
     "email": CONFIG['email'],
     "time": datetime.datetime.utcnow(),
@@ -70,7 +63,7 @@ cached_file.close()
 for filename in glob.glob(os.path.join(HOME, '.scrob', 'cached', '*.json')):
     with open(filename, "r") as cached:
         params = urllib.urlencode({ 'data': cached.read() })
-        conn = httplib.HTTPConnection(API_ENDPOINT)
+        conn = httplib.HTTPConnection(CONFIG['api'])
         conn.request("POST", "/songs", params)
         response = conn.getresponse()
         if response.status == 303 or response.status == 200:

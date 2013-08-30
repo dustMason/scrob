@@ -28,7 +28,6 @@ def get_recently_played_tracks(stream):
     try:
         plist = parser.parse(stream)
         for trackid in plist['Tracks']:
-            print plist['Tracks'][trackid]['Name']
             if 'Play Date' in plist['Tracks'][trackid]:
                 stamp = plist['Tracks'][trackid]['Play Date']
                 if stamp > since:

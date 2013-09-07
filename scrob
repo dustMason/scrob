@@ -52,6 +52,7 @@ def get_recently_played_tracks(stream):
 stream = open(CONFIG['itunes_xml_path'])
 out = {
     "email": CONFIG['email'],
+    "password": CONFIG['password'],
     "time": datetime.datetime.utcnow(),
     "songs": get_recently_played_tracks(stream)
 }
@@ -68,7 +69,9 @@ for filename in glob.glob(os.path.join(HOME, '.scrob', 'cached', '*.json')):
         conn = httplib.HTTPConnection(CONFIG['api'])
         conn.request("POST", "/songs", params)
         response = conn.getresponse()
-        if response.status == 303 or response.status == 200:
+        if response.status == 200 or response.status == 500:
             os.remove(filename)
+        if response.status == 500:
+            print response.read()
         conn.close() 
 

@@ -14,6 +14,10 @@ success () {
 }
 
 overwrite=true
+new_account=false
+
+api="whaleteeth.herokuapp.com"
+# api="localhost:3000"
 
 # check to see if there is an existing ~/.scrob file
 if [ -e "$HOME/.scrob" ]
@@ -31,18 +35,58 @@ then
   esac
 fi
 
-if [ "$overwrite" == "true" ] 
-then
+
+prompt_for_email_and_password () {
+
   rm -rf ~/.scrob
   mkdir -p ~/.scrob
   mkdir -p ~/.scrob/cached
+
+  user "Do you already have a scrob account? [y]es, [n]o"
+  read -n 1 action
+  case "$action" in
+    n )
+      new_account=true;;
+    N )
+      new_account=true;;
+    * )
+      ;;
+  esac
+
   echo "{" > ~/.scrob/config.json
   user " - Enter your email:"
   read -e SCROB_USERNAME
-  echo "  \"email\": \"$SCROB_USERNAME\"" >> ~/.scrob/config.json
+  echo "  \"email\": \"$SCROB_USERNAME\"," >> ~/.scrob/config.json
+  user " - Enter your password:"
+  read -e SCROB_PASSWORD
+  echo "  \"password\": \"$SCROB_PASSWORD\"," >> ~/.scrob/config.json
+  echo "  \"api\": \"$api\"" >> ~/.scrob/config.json
   echo "}" >> ~/.scrob/config.json
-fi
+  info "Config saved. You can view/edit the config at ~/.scrob/config.yml"
+  
+  if [ "$new_account" == "true" ]
+  then
+    create_new_account "$SCROB_USERNAME" "$SCROB_PASSWORD"
+  fi
 
+}
+
+create_new_account () {
+  # $1 and $2 = email and password
+  posted=`curl --data "email=$1&password=$2" -X POST --silent "http://$api/users"`
+  if [ "$posted" == "success" ]
+  then
+    success "Account created"
+  else
+    info "There was an error ($posted), please try again"
+    prompt_for_email_and_password
+  fi
+}
+
+if [ "$overwrite" == "true" ] 
+then
+  prompt_for_email_and_password
+fi
 
 info "Downloading scrob"
 echo ""
